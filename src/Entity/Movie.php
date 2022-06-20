@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\MovieRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
@@ -19,11 +21,19 @@ class Movie
     #[ORM\Column(type: 'integer')]
     private $releaseYear;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255)]
     private $description;
 
     #[ORM\Column(type: 'string', length: 255)]
     private $imagePath;
+
+    #[ORM\ManyToMany(targetEntity: Actor::class, inversedBy: 'movies')]
+    private $actors;
+
+    public function __construct()
+    {
+        $this->actors = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -59,7 +69,7 @@ class Movie
         return $this->description;
     }
 
-    public function setDescription(?string $description): self
+    public function setDescription(string $description): self
     {
         $this->description = $description;
 
@@ -74,6 +84,30 @@ class Movie
     public function setImagePath(string $imagePath): self
     {
         $this->imagePath = $imagePath;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Actor>
+     */
+    public function getActors(): Collection
+    {
+        return $this->actors;
+    }
+
+    public function addActor(Actor $actor): self
+    {
+        if (!$this->actors->contains($actor)) {
+            $this->actors[] = $actor;
+        }
+
+        return $this;
+    }
+
+    public function removeActor(Actor $actor): self
+    {
+        $this->actors->removeElement($actor);
 
         return $this;
     }
